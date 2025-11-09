@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz de Termodinámica</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: url(https://www.uts.edu.co/sitio/wp-content/uploads/2020/08/IMG-20200815-WA0004.jpg) no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        /* Formulario de nombre */
+        .name-form {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .name-form h2 {
+            color: #2BA840;
+            margin-bottom: 20px;
+        }
+        .name-form input {
+            width: 100%;
+            max-width: 400px;
+            padding: 15px;
+            border: 2px solid #2BA840;
+            border-radius: 8px;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+        .name-form button {
+            background: #2BA840;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background 0.3s;
+        }
+        .name-form button:hover {
+            background: #1a7a34;
+        }
+        
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .module-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .module-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        .module-card h2 {
+            color: #2BA840;
+            margin-bottom: 10px;
+            font-size: 1.5em;
+        }
+        .module-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+        .quiz-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: none;
+        }
+        .quiz-container.active {
+            display: block;
+        }
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+        .back-btn {
+            background: #2BA840;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background 0.3s;
+        }
+        .back-btn:hover {
+            background: #1a7a34;
+        }
+        .progress {
+            color: #2BA840;
+            font-weight: bold;
+        }
+        .user-info {
+            background: #f0f4ff;
+            padding: 10px 15px;
+            border-radius: 8px;
+            color: #2BA840;
+            font-weight: bold;
+        }
+        .question-card {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #2BA840;
+        }
+        .question-text {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: #333;
+            font-weight: 500;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .option {
+            background: white;
+            border: 2px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .option:hover {
+            border-color: #2BA840;
+            background: #f0f4ff;
+        }
+        .option.selected {
+            border-color: #2BA840;
+            background: #2BA840;
+            color: white;
+        }
+        .option.correct {
+            border-color: #28a745;
+            background: #28a745;
+            color: white;
+        }
+        .option.incorrect {
+            border-color: #dc3545;
+            background: #dc3545;
+            color: white;
+        }
+        .submit-btn {
+            background: #2BA840;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            display: block;
+            margin: 30px auto;
+            transition: background 0.3s;
+        }
+        .submit-btn:hover {
+            background: #1a7a34;
+        }
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .results {
+            text-align: center;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .results h2 {
+            color: #2BA840;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+        .score {
+            font-size: 3em;
+            color: #2BA840;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .save-status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            font-style: italic;
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .save-status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        /* Historial de resultados */
+        .historial-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 10px;
+            transition: background 0.3s;
+        }
+        .historial-btn:hover {
+            background: #5a6268;
+        }
+        .historial-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: none;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .historial-container.active {
+            display: block;
+        }
+        .historial-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #2BA840;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+            .quiz-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Termodinámica Introducción UTS</h1>
+        
+        <!-- Formulario de nombre -->
+        <div id="nameForm" class="name-form">
+            <h2>Antes de comenzar...</h2>
+            <p style="margin-bottom: 20px; color: #666;">Ingresa tu nombre para guardar tus resultados</p>
+            <input type="text" id="userName" placeholder="Escribe tu nombre completo" required>
+            <br>
+            <button onclick="saveUserName()">Continuar</button>
+        </div>
+        
+        <!-- Vista de módulos -->
+        <div id="modulesView" class="modules-grid" style="display: none;">
+            <div class="module-card" onclick="startQuiz(0)">
+                <h2>Módulo 1</h2>
+                <p>Conceptos Fundamentales y Primera Ley</p>
+            </div>
+            <div class="module-card" onclick="startQuiz(1)">
+                <h2>Módulo 2</h2>
+                <p>Segunda Ley y Entropía</p>
+            </div>
+            <div class="module-card" onclick="startQuiz(2)">
+                <h2>Módulo 3</h2>
+                <p>Ciclos Termodinámicos</p>
+            </div>
+            <div class="module-card" onclick="startQuiz(3)">
+                <h2>Módulo 4</h2>
+                <p>Propiedades de Sustancias Puras</p>
+            </div>
+            <div class="module-card" onclick="startQuiz(4)">
+                <h2>Módulo 5</h2>
+                <p>Sistemas Abiertos y Aplicaciones</p>
+            </div>
+        </div>
+        
+        <!-- Botón para ver historial -->
+        <div style="text-align: center; display: none;" id="historialBtnContainer">
+            <button class="historial-btn" onclick="toggleHistorial()">📊 Ver Mi Historial</button>
+        </div>
+        
+        <!-- Contenedor de historial -->
+        <div id="historialContainer" class="historial-container">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="color: #2BA840;">Mi Historial de Resultados</h2>
+                <button class="back-btn" onclick="toggleHistorial()">Cerrar</button>
+            </div>
+            <div id="historialList"></div>
+        </div>
+        
+        <!-- Vista del quiz -->
+        <div id="quizView" class="quiz-container">
+            <div class="quiz-header">
+                <button class="back-btn" onclick="backToModules()">← Volver</button>
+                <div class="progress" id="progress"></div>
+                <div class="user-info" id="userInfo"></div>
+            </div>
+            <div id="questionsContainer"></div>
+            <button class="submit-btn" id="submitBtn" onclick="submitQuiz()">Enviar Respuestas</button>
+            <div id="results" class="results" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, push, set, onValue, query, orderByChild, equalTo } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        // ⚠️ CONFIGURACIÓN DE FIREBASE - DEBES REEMPLAZAR ESTO
+        // Ve a: https://console.firebase.google.com
+        // 1. Crea un proyecto
+        // 2. Ve a "Realtime Database" y créala
+        // 3. En "Reglas", pon:
+        //    {
+        //      "rules": {
+        //        ".read": true,
+        //        ".write": true
+        //      }
+        //    }
+        // 4. Copia tu configuración aquí:
+        
+        const firebaseConfig = {
+            apiKey: "TU_API_KEY_AQUI",
+            authDomain: "TU_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://TU_PROJECT_ID-default-rtdb.firebaseio.com",
+            projectId: "TU_PROJECT_ID",
+            storageBucket: "TU_PROJECT_ID.appspot.com",
+            messagingSenderId: "TU_SENDER_ID",
+            appId: "TU_APP_ID"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Hacer las funciones globales
+        window.saveToFirebase = function(data) {
+            const resultsRef = ref(database, 'resultados');
+            return push(resultsRef, data);
+        };
+
+        window.loadUserHistory = function(userName) {
+            const resultsRef = ref(database, 'resultados');
+            const userQuery = query(resultsRef, orderByChild('nombre'), equalTo(userName));
+            
+            onValue(userQuery, (snapshot) => {
+                const historialList = document.getElementById('historialList');
+                historialList.innerHTML = '';
+                
+                if (snapshot.exists()) {
+                    const resultados = [];
+                    snapshot.forEach((childSnapshot) => {
+                        resultados.push(childSnapshot.val());
+                    });
+                    
+                    // Ordenar por fecha (más reciente primero)
+                    resultados.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+                    
+                    resultados.forEach(resultado => {
+                        const fecha = new Date(resultado.fecha).toLocaleString('es-ES');
+                        const porcentaje = ((resultado.correctas / resultado.total) * 100).toFixed(0);
+                        
+                        historialList.innerHTML += `
+                            <div class="historial-item">
+                                <strong style="color: #2BA840;">${resultado.modulo}</strong>
+                                <p>Puntuación: ${resultado.correctas}/${resultado.total} (${porcentaje}%)</p>
+                                <p style="font-size: 0.9em; color: #666;">Fecha: ${fecha}</p>
+                            </div>
+                        `;
+                    });
+                } else {
+                    historialList.innerHTML = '<p style="text-align: center; color: #666;">No hay resultados guardados aún.</p>';
+                }
+            });
+        };
+    </script>
+
+    <script>
+        const quizData = [
+            {
+                title: "Módulo 1: Conceptos Fundamentales y Primera Ley",
+                questions: [
+                    {q: "¿Qué es un sistema termodinámico cerrado?", options: ["Un sistema que no intercambia materia ni energía", "Un sistema que intercambia energía pero no materia", "Un sistema que intercambia materia pero no energía", "Un sistema completamente aislado"], correct: 1},
+                    {q: "La primera ley de la termodinámica establece:", options: ["La conservación de la energía", "El aumento de la entropía", "La dirección de los procesos", "La temperatura absoluta"], correct: 0},
+                    {q: "¿Qué representa ΔU en termodinámica?", options: ["Cambio de presión", "Cambio de energía interna", "Cambio de volumen", "Cambio de temperatura"], correct: 1},
+                    {q: "En un proceso adiabático:", options: ["No hay transferencia de calor", "No hay cambio de presión", "La temperatura es constante", "El volumen es constante"], correct: 0},
+                    {q: "¿Qué es una propiedad intensiva?", options: ["Depende de la masa del sistema", "No depende de la masa del sistema", "Solo existe en gases", "Se mide en joules"], correct: 1},
+                    {q: "El trabajo realizado por un gas en expansión es:", options: ["Siempre negativo", "Siempre positivo", "Positivo cuando el gas se expande", "Independiente del volumen"], correct: 2},
+                    {q: "¿Qué es un proceso isotérmico?", options: ["Presión constante", "Temperatura constante", "Volumen constante", "Entropía constante"], correct: 1},
+                    {q: "La energía interna de un gas ideal depende de:", options: ["Solo la temperatura", "Solo la presión", "Solo el volumen", "Presión y volumen"], correct: 0},
+                    {q: "En un proceso isocórico:", options: ["El volumen es constante", "La presión es constante", "La temperatura es constante", "No hay trabajo"], correct: 0},
+                    {q: "¿Cuál es la unidad SI de energía?", options: ["Watt", "Joule", "Pascal", "Kelvin"], correct: 1}
+                ]
+            },
+            {
+                title: "Módulo 2: Segunda Ley y Entropía",
+                questions: [
+                    {q: "La segunda ley de la termodinámica establece que:", options: ["La energía se conserva", "La entropía del universo siempre aumenta", "El calor fluye de frío a caliente", "La presión es constante"], correct: 1},
+                    {q: "¿Qué es la entropía?", options: ["Una medida del orden del sistema", "Una medida del desorden del sistema", "La energía total", "La temperatura absoluta"], correct: 1},
+                    {q: "Un proceso reversible es:", options: ["El que ocurre espontáneamente", "El que puede invertirse sin dejar cambios", "El que genera calor", "El más rápido posible"], correct: 1},
+                    {q: "¿Qué representa el ciclo de Carnot?", options: ["El ciclo menos eficiente", "El ciclo teóricamente más eficiente", "Un ciclo irreversible", "Un ciclo sin trabajo"], correct: 1},
+                    {q: "La eficiencia de una máquina térmica:", options: ["Siempre es 100%", "Siempre es menor que 100%", "Depende solo del combustible", "Es independiente de las temperaturas"], correct: 1},
+                    {q: "En un proceso irreversible:", options: ["La entropía del universo disminuye", "La entropía del universo aumenta", "La entropía no cambia", "La temperatura es constante"], correct: 1},
+                    {q: "El cero absoluto corresponde a:", options: ["0°C", "0°F", "0 K", "273 K"], correct: 2},
+                    {q: "Una bomba de calor:", options: ["Solo enfría", "Solo calienta", "Transfiere calor de frío a caliente", "Genera calor espontáneamente"], correct: 2},
+                    {q: "¿Qué es un sumidero térmico?", options: ["Una fuente de calor", "Un reservorio que absorbe calor", "Un material aislante", "Un gas ideal"], correct: 1},
+                    {q: "La eficiencia de Carnot depende de:", options: ["Solo la temperatura alta", "Solo la temperatura baja", "Ambas temperaturas de los reservorios", "El tipo de gas"], correct: 2}
+                ]
+            },
+            {
+                title: "Módulo 3: Ciclos Termodinámicos",
+                questions: [
+                    {q: "El ciclo Otto se utiliza en:", options: ["Motores diésel", "Motores de gasolina", "Refrigeradores", "Turbinas de vapor"], correct: 1},
+                    {q: "El ciclo Diesel se caracteriza por:", options: ["Combustión a volumen constante", "Combustión a presión constante", "No tener combustión", "Ser reversible"], correct: 1},
+                    {q: "¿Qué es el ciclo Rankine?", options: ["Ciclo de refrigeración", "Ciclo de motores de gasolina", "Ciclo de plantas de vapor", "Ciclo de aire estándar"], correct: 2},
+                    {q: "En un ciclo de refrigeración:", options: ["Se produce trabajo", "Se absorbe calor de una fuente fría", "No hay compresor", "La entropía disminuye"], correct: 1},
+                    {q: "El COP (coeficiente de rendimiento) es:", options: ["Siempre menor que 1", "Puede ser mayor que 1", "Igual a la eficiencia", "Solo para máquinas térmicas"], correct: 1},
+                    {q: "¿Qué componente comprime el refrigerante?", options: ["Evaporador", "Condensador", "Compresor", "Válvula de expansión"], correct: 2},
+                    {q: "En el ciclo Brayton se utiliza:", options: ["Líquido como fluido de trabajo", "Gas como fluido de trabajo", "Vapor de agua", "Refrigerante"], correct: 1},
+                    {q: "La relación de compresión afecta:", options: ["Solo el volumen", "La eficiencia del ciclo", "Solo la temperatura", "Solo la presión"], correct: 1},
+                    {q: "¿Dónde ocurre la expansión en un motor?", options: ["Durante la admisión", "Durante la compresión", "Durante la combustión y expansión", "Durante el escape"], correct: 2},
+                    {q: "El ciclo Stirling es:", options: ["Irreversible", "De combustión interna", "Un ciclo regenerativo", "Solo teórico"], correct: 2}
+                ]
+            },
+            {
+                title: "Módulo 4: Propiedades de Sustancias Puras",
+                questions: [
+                    {q: "¿Qué es una sustancia pura?", options: ["Una mezcla homogénea", "Composición química uniforme", "Solo elementos", "Solo compuestos"], correct: 1},
+                    {q: "El punto triple representa:", options: ["Solo fase líquida", "Coexistencia de tres fases", "La temperatura máxima", "La presión mínima"], correct: 1},
+                    {q: "¿Qué es el título (calidad) de vapor?", options: ["La pureza del vapor", "La fracción de masa en fase vapor", "La temperatura del vapor", "La presión del vapor"], correct: 1},
+                    {q: "En el punto crítico:", options: ["No existe diferencia entre líquido y vapor", "El líquido se congela", "El vapor se condensa completamente", "La presión es cero"], correct: 0},
+                    {q: "¿Qué son las tablas de vapor?", options: ["Tablas de cocina", "Propiedades termodinámicas tabuladas", "Tablas de presión atmosférica", "Gráficos de temperatura"], correct: 1},
+                    {q: "La presión de saturación:", options: ["Es constante para todas las temperaturas", "Aumenta con la temperatura", "Disminuye con la temperatura", "Es independiente de la temperatura"], correct: 1},
+                    {q: "Vapor sobrecalentado es:", options: ["Vapor a temperatura menor que la de saturación", "Vapor a temperatura mayor que la de saturación", "Vapor mezclado con líquido", "Vapor comprimido"], correct: 1},
+                    {q: "¿Qué es la entalpía?", options: ["Calor específico", "Energía interna + PV", "Solo trabajo", "Solo calor"], correct: 1},
+                    {q: "El diagrama T-s muestra:", options: ["Temperatura vs entropía", "Tiempo vs distancia", "Temperatura vs volumen", "Trabajo vs calor"], correct: 0},
+                    {q: "Líquido comprimido es:", options: ["Líquido a punto de evaporarse", "Líquido a presión mayor que la de saturación", "Líquido congelado", "Líquido en ebullición"], correct: 1}
+                ]
+            },
+            {
+                title: "Módulo 5: Sistemas Abiertos y Aplicaciones",
+                questions: [
+                    {q: "En un sistema abierto:", options: ["No entra ni sale masa", "Entra y sale masa", "Solo entra energía", "Está aislado"], correct: 1},
+                    {q: "¿Qué es un volumen de control?", options: ["El volumen de un gas", "Una región del espacio para análisis", "El volumen específico", "Un contenedor cerrado"], correct: 1},
+                    {q: "La ecuación de continuidad establece:", options: ["Conservación de energía", "Conservación de masa", "Conservación de entropía", "Conservación de trabajo"], correct: 1},
+                    {q: "En una turbina:", options: ["Se comprime el fluido", "Se expande el fluido produciendo trabajo", "Se calienta el fluido", "No hay transferencia de energía"], correct: 1},
+                    {q: "Un compresor:", options: ["Reduce la presión", "Aumenta la presión mediante trabajo", "Solo enfría", "No consume trabajo"], correct: 1},
+                    {q: "¿Qué es un intercambiador de calor?", options: ["Un generador de calor", "Un dispositivo que transfiere calor entre fluidos", "Una máquina térmica", "Un refrigerador"], correct: 1},
+                    {q: "La tobera:", options: ["Reduce la velocidad", "Aumenta la velocidad del fluido", "Aumenta la presión", "No afecta la velocidad"], correct: 1},
+                    {q: "En estado estacionario:", options: ["Todo cambia con el tiempo", "Las propiedades no cambian con el tiempo", "El sistema está apagado", "No hay flujo"], correct: 1},
+                    {q: "¿Qué es el flujo másico?", options: ["La masa total", "La masa por unidad de tiempo", "La densidad", "El volumen específico"], correct: 1},
+                    {q: "Una válvula de estrangulamiento:", options: ["Aumenta la presión", "Reduce la presión a entalpía constante", "Aumenta la temperatura", "Produce trabajo"], correct: 1}
+                ]
+            }
+        ];
+
+        let currentModule = 0;
+        let answers = {};
+        let currentUser = '';
+
+        function saveUserName() {
+            const userName = document.getElementById('userName').value.trim();
+            if (userName === '') {
+                alert('Por favor ingresa tu nombre');
+                return;
+            }
+            currentUser = userName;
+            document.getElementById('nameForm').style.display = 'none';
+            document.getElementById('modulesView').style.display = 'grid';
+            document.getElementById('historialBtnContainer').style.display = 'block';
+            
+            // Cargar historial del usuario
+            if (window.loadUserHistory) {
+                window.loadUserHistory(userName);
+            }
+        }
+
+        function startQuiz(moduleIndex) {
+            currentModule = moduleIndex;
+            answers = {};
+            document.getElementById('modulesView').style.display = 'none';
+            document.getElementById('historialBtnContainer').style.display = 'none';
+            document.getElementById('quizView').classList.add('active');
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('submitBtn').style.display = 'block';
+
+            const module = quizData[moduleIndex];
+            document.getElementById('progress').textContent = module.title;
+            document.getElementById('userInfo').textContent = `👤 ${currentUser}`;
+
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+
+            module.questions.forEach((q, idx) => {
+                const qCard = document.createElement('div');
+                qCard.className = 'question-card';
+                qCard.innerHTML = `
+                    <div class="question-text">${idx + 1}. ${q.q}</div>
+                    <div class="options">
+                        ${q.options.map((opt, optIdx) => `
+                            <div class="option" onclick="selectOption(${idx}, ${optIdx})" data-question="${idx}" data-option="${optIdx}">
+                                ${String.fromCharCode(65 + optIdx)}. ${opt}
+                            </div>
+                        `).join('')}
+                    </div>`;
+                container.appendChild(qCard);
+            });
+        }
+
+        function selectOption(questionIdx, optionIdx) {
+            const options = document.querySelectorAll(`[data-question="${questionIdx}"]`);
+            options.forEach(opt => opt.classList.remove('selected'));
+            const selected = document.querySelector(`[data-question="${questionIdx}"][data-option="${optionIdx}"]`);
+            selected.classList.add('selected');
+            answers[questionIdx] = optionIdx;
+        }
+
+        function submitQuiz() {
+            const module = quizData[currentModule];
+            let correct = 0;
+
+            module.questions.forEach((q, idx) => {
+                const options = document.querySelectorAll(`[data-question="${idx}"]`);
+                options.forEach((opt, optIdx) => {
+                    opt.style.pointerEvents = 'none';
+                    if (optIdx === q.correct) {
+                        opt.classList.add('correct');
+                    }
+                    if (answers[idx] === optIdx && optIdx !== q.correct) {
+                        opt.classList.add('incorrect');
+                    }
+                });
+
+                if (answers[idx] === q.correct) {
+                    correct++;
+                }
+            });
+
+            const percentage = (correct / module.questions.length * 100).toFixed(0);
+            function submitQuiz() {
+            const module = quizData[currentModule];
+            let correct = 0;
+
+            module.questions.forEach((q, idx) => {
+                const options = document.querySelectorAll(`[data-question="${idx}"]`);
+                options.forEach((opt, optIdx) => {
+                    opt.style.pointerEvents = 'none';
+                    if (optIdx === q.correct) {
+                        opt.classList.add('correct');
+                    }
+                    if (answers[idx] === optIdx && optIdx !== q.correct) {
+                        opt.classList.add('incorrect');
+                    }
+                });
+
+                if (answers[idx] === q.correct) {
+                    correct++;
+                }
+            });
+
+            const percentage = (correct / module.questions.length * 100).toFixed(0);
+            let message = '';
+            if (percentage >= 90) message = '¡Excelente! Dominas el tema.';
+            else if (percentage >= 70) message = '¡Muy bien! Buen conocimiento.';
+            else if (percentage >= 50) message = 'Aprobado. Sigue estudiando.';
+            else message = 'Necesitas repasar más el tema.';
+
+            // Guardar en Firebase
+            const resultData = {
+                nombre: currentUser,
+                modulo: module.title,
+                correctas: correct,
+                total: module.questions.length,
+                porcentaje: percentage,
+                fecha: new Date().toISOString(),
+                respuestas: answers
+            };
+
+            if (window.saveToFirebase) {
+                window.saveToFirebase(resultData)
+                    .then(() => {
+                        document.getElementById('results').innerHTML = `
+                            <h2>Resultados</h2>
+                            <div class="score">${correct}/${module.questions.length}</div>
+                            <p style="font-size: 1.5em; color: #2BA840;">${percentage}%</p>
+                            <p style="margin-top: 15px; font-size: 1.1em;">${message}</p>
+                            <div class="save-status">✅ Resultados guardados en Firebase</div>
+                        `;
+                        // Recargar historial
+                        window.loadUserHistory(currentUser);
+                    })
+                    .catch((error) => {
+                        document.getElementById('results').innerHTML = `
+                            <h2>Resultados</h2>
+                            <div class="score">${correct}/${module.questions.length}</div>
+                            <p style="font-size: 1.5em; color: #2BA840;">${percentage}%</p>
+                            <p style="margin-top: 15px; font-size: 1.1em;">${message}</p>
+                            <div class="save-status error">⚠️ Error al guardar: ${error.message}</div>
+                        `;
+                    });
+            } else {
+                document.getElementById('results').innerHTML = `
+                    <h2>Resultados</h2>
+                    <div class="score">${correct}/${module.questions.length}</div>
+                    <p style="font-size: 1.5em; color: #2BA840;">${percentage}%</p>
+                    <p style="margin-top: 15px; font-size: 1.1em;">${message}</p>
+                    <div class="save-status error">⚠️ Firebase no configurado. Por favor configura Firebase primero.</div>
+                `;
+            }
+
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('submitBtn').style.display = 'none';
+        }
+
+        function backToModules() {
+            document.getElementById('quizView').classList.remove('active');
+            document.getElementById('modulesView').style.display = 'grid';
+            document.getElementById('historialBtnContainer').style.display = 'block';
+        }
+
+        function toggleHistorial() {
+            const historial = document.getElementById('historialContainer');
+            const modules = document.getElementById('modulesView');
+            const btnContainer = document.getElementById('historialBtnContainer');
+            
+            if (historial.classList.contains('active')) {
+                historial.classList.remove('active');
+                modules.style.display = 'grid';
+                btnContainer.style.display = 'block';
+            } else {
+                historial.classList.add('active');
+                modules.style.display = 'none';
+                btnContainer.style.display = 'none';
+            }
+        }}
+    </script>
+</body>
+</html>
