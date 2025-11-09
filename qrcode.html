@@ -1,0 +1,382 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Códigos QR</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 32px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .info-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 25px;
+            font-size: 14px;
+            color: #2e7d32;
+        }
+        
+        .input-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        input[type="text"], input[type="url"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .size-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        
+        .size-option {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+        
+        .size-option:hover {
+            border-color: #667eea;
+        }
+        
+        .size-option.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .size-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        button {
+            width: 100%;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 15px;
+        }
+        
+        .btn-generate {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-generate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-download {
+            background: #4CAF50;
+            color: white;
+            display: none;
+        }
+        
+        .btn-download:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+        
+        .qr-container {
+            display: none;
+            background: #f5f5f5;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        #qrcode {
+            display: inline-block;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .qr-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            display: none;
+            animation: slideIn 0.3s;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .examples {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 25px;
+            font-size: 13px;
+            color: #e65100;
+        }
+        
+        .examples strong {
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .examples ul {
+            margin-left: 20px;
+        }
+        
+        .examples li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 Generador de Códigos QR</h1>
+        <p class="subtitle">Crea códigos QR permanentes con tus enlaces</p>
+        
+        <div class="info-box">
+            <strong>✅ Códigos QR Permanentes</strong><br>
+            Los códigos QR generados aquí son permanentes y funcionarán para siempre. El enlace queda grabado directamente en el código QR.
+        </div>
+        
+        <div class="examples">
+            <strong>💡 Ejemplos de uso:</strong>
+            <ul>
+                <li>https://www.tusitio.com</li>
+                <li>https://wa.me/573001234567</li>
+                <li>https://instagram.com/tuusuario</li>
+                <li>https://maps.google.com/?q=tu+ubicacion</li>
+            </ul>
+        </div>
+        
+        <div class="input-group">
+            <label for="urlInput">🔗 Ingresa tu enlace:</label>
+            <input type="url" id="urlInput" placeholder="https://ejemplo.com" />
+        </div>
+        
+        <div class="input-group">
+            <label for="nameInput">📝 Nombre del QR (opcional):</label>
+            <input type="text" id="nameInput" placeholder="Ej: Mi Sitio Web" />
+        </div>
+        
+        <div class="size-label">📏 Tamaño del código QR:</div>
+        <div class="size-selector">
+            <div class="size-option" data-size="200" onclick="selectSize(200)">
+                <div style="font-size: 20px; margin-bottom: 5px;">📱</div>
+                <div style="font-size: 14px; font-weight: 600;">Pequeño</div>
+                <div style="font-size: 11px; color: #999;">200x200</div>
+            </div>
+            <div class="size-option active" data-size="300" onclick="selectSize(300)">
+                <div style="font-size: 24px; margin-bottom: 5px;">💻</div>
+                <div style="font-size: 14px; font-weight: 600;">Mediano</div>
+                <div style="font-size: 11px; color: #999;">300x300</div>
+            </div>
+            <div class="size-option" data-size="400" onclick="selectSize(400)">
+                <div style="font-size: 28px; margin-bottom: 5px;">🖨️</div>
+                <div style="font-size: 14px; font-weight: 600;">Grande</div>
+                <div style="font-size: 11px; color: #999;">400x400</div>
+            </div>
+        </div>
+        
+        <button class="btn-generate" onclick="generateQR()">✨ Generar Código QR</button>
+        <button class="btn-download" id="downloadBtn" onclick="downloadQR()">⬇️ Descargar QR</button>
+        
+        <div class="qr-container" id="qrContainer">
+            <div id="qrcode"></div>
+            <div class="qr-info">
+                <strong>✅ ¡Código QR generado!</strong><br>
+                Este código QR es permanente y funcionará siempre.<br>
+                Escanéalo para probar o descárgalo.
+            </div>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification">¡Código QR generado exitosamente!</div>
+    
+    <script>
+        let selectedSize = 300;
+        let currentQRName = '';
+        
+        function selectSize(size) {
+            selectedSize = size;
+            document.querySelectorAll('.size-option').forEach(opt => {
+                opt.classList.remove('active');
+            });
+            document.querySelector(`[data-size="${size}"]`).classList.add('active');
+        }
+        
+        function generateQR() {
+            const url = document.getElementById('urlInput').value.trim();
+            const name = document.getElementById('nameInput').value.trim();
+            
+            if (!url) {
+                alert('Por favor, ingresa un enlace válido');
+                return;
+            }
+            
+            // Validar que sea una URL válida
+            try {
+                new URL(url);
+            } catch (e) {
+                alert('Por favor, ingresa una URL válida (debe empezar con http:// o https://)');
+                return;
+            }
+            
+            currentQRName = name || 'codigo-qr';
+            
+            // Limpiar QR anterior
+            const qrDiv = document.getElementById('qrcode');
+            qrDiv.innerHTML = '';
+            
+            // Generar nuevo QR
+            new QRCode(qrDiv, {
+                text: url,
+                width: selectedSize,
+                height: selectedSize,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            
+            // Mostrar resultado
+            document.getElementById('qrContainer').style.display = 'block';
+            document.getElementById('downloadBtn').style.display = 'block';
+            
+            // Mostrar notificación
+            showNotification();
+            
+            // Scroll suave al resultado
+            setTimeout(() => {
+                document.getElementById('qrContainer').scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+        }
+        
+        function downloadQR() {
+            const canvas = document.querySelector('#qrcode canvas');
+            if (!canvas) {
+                alert('Primero genera un código QR');
+                return;
+            }
+            
+            // Convertir canvas a imagen y descargar
+            const link = document.createElement('a');
+            link.download = `${currentQRName}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            
+            showNotification('¡Código QR descargado!');
+        }
+        
+        function showNotification(message = '¡Código QR generado exitosamente!') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 2500);
+        }
+        
+        // Generar al presionar Enter
+        document.getElementById('urlInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateQR();
+            }
+        });
+    </script>
+</body>
+</html>
